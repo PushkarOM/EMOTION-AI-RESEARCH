@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+audio/datasets/*/
+!audio/datasets/*/.gitkeep
+wandb/
+.env

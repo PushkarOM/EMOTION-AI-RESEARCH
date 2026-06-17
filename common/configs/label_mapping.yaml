@@ -1,0 +1,102 @@
+# Canonical emotion taxonomy: 7 classes
+# Used as the common label space across all datasets and modalities
+canonical_labels:
+  0: neutral
+  1: happy
+  2: sad
+  3: angry
+  4: fear
+  5: disgust
+  6: surprise
+  7: frustration
+
+# ---------------------------------------------------------------
+# RAVDESS native labels -> canonical
+# RAVDESS codes: 01=neutral,02=calm,03=happy,04=sad,05=angry,06=fearful,07=disgust,08=surprised
+ravdess:
+  "01": neutral   # neutral
+  "02": neutral   # calm -> folded into neutral (low arousal, neutral valence)
+  "03": happy
+  "04": sad
+  "05": angry
+  "06": fear
+  "07": disgust
+  "08": surprise
+
+ravdess_native:
+  "01": neutral
+  "02": calm
+  "03": happy
+  "04": sad
+  "05": angry
+  "06": fear
+  "07": disgust
+  "08": surprise
+
+# ---------------------------------------------------------------
+# CREMA-D native labels -> canonical
+# CREMA-D: ANG, DIS, FEA, HAP, NEU, SAD (no surprise)
+crema_d:
+  ANG: angry
+  DIS: disgust
+  FEA: fear
+  HAP: happy
+  NEU: neutral
+  SAD: sad
+
+crema_d_native:
+  ANG: anger
+  DIS: disgust
+  FEA: fear
+  HAP: happy
+  NEU: neutral
+  SAD: sad
+
+
+# ---------------------------------------------------------------
+# IEMOCAP native labels -> canonical
+# IEMOCAP categorical labels (Session dialogs): anger, happiness, sadness,
+# neutral, excited, frustration, fear, surprise, disgust, other
+iemocap:
+  anger: angry
+  happiness: happy
+  excited: happy        
+  sadness: sad
+  frustration: frustration    
+  neutral: neutral
+  fear: fear
+  surprise: surprise
+  disgust: disgust
+  other: null           
+
+# ---------------------------------------------------------------
+# GoEmotions (28 labels) -> canonical
+goemotions:
+  admiration: happy
+  amusement: happy
+  anger: angry
+  annoyance: angry
+  approval: happy
+  caring: happy
+  confusion: neutral     
+  curiosity: neutral     
+  desire: happy
+  disappointment: sad
+  disapproval: angry
+  disgust: disgust
+  embarrassment: fear     
+  excitement: happy
+  fear: fear
+  gratitude: happy
+  grief: sad
+  joy: happy
+  love: happy
+  nervousness: fear
+  optimism: happy
+  pride: happy
+  realization: neutral   
+  relief: happy
+  remorse: sad
+  sadness: sad
+  surprise: surprise
+  neutral: neutral
