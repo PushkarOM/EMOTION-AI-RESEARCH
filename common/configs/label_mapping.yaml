@@ -33,6 +33,15 @@ ravdess_native:
   "07": disgust
   "08": surprise
 
+
+ravdess_intensity_native:
+  "01": normal
+  "02": strong
+
+ravdess_intensity_canonical:
+  "01": low
+  "02": high
+
 # ---------------------------------------------------------------
 # CREMA-D native labels -> canonical
 # CREMA-D: ANG, DIS, FEA, HAP, NEU, SAD (no surprise)
@@ -52,22 +61,46 @@ crema_d_native:
   NEU: neutral
   SAD: sad
 
+crema_d_intensity_native:
+  LO: low
+  MD: medium
+  HI: high
+  XX: null
+
+crema_d_intensity_canonical:
+  LO: low
+  MD: medium
+  HI: high
+  XX: null
 
 # ---------------------------------------------------------------
 # IEMOCAP native labels -> canonical
-# IEMOCAP categorical labels (Session dialogs): anger, happiness, sadness,
-# neutral, excited, frustration, fear, surprise, disgust, other
+# IEMOCAP codes: neu, hap, sad, ang, exc, fru, fea, sur, dis, oth, xxx
+iemocap_native:
+  neu: neutral
+  hap: happiness
+  sad: sadness
+  ang: anger
+  exc: excited
+  fru: frustration
+  fea: fear
+  sur: surprise
+  dis: disgust
+  oth: other
+  xxx: unlabeled
+
 iemocap:
-  anger: angry
-  happiness: happy
-  excited: happy        
-  sadness: sad
-  frustration: frustration    
-  neutral: neutral
-  fear: fear
-  surprise: surprise
-  disgust: disgust
-  other: null           
+  neu: neutral
+  hap: happy
+  sad: sad
+  ang: angry
+  exc: happy        # matches your earlier excited -> happy decision
+  fru: frustration
+  fea: fear
+  sur: surprise
+  dis: disgust
+  oth: null          # drop, not a real emotion
+  xxx: null          # drop, no majority agreement / unlabeled         
 
 # ---------------------------------------------------------------
 # GoEmotions (28 labels) -> canonical
