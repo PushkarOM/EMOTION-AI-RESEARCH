@@ -2,3 +2,7 @@ pyyaml
 soundfile
 numpy
 pandas
+transformers
+torch
+huggingface_hub
+librosa

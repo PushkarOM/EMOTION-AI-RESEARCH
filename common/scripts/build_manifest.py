@@ -19,12 +19,26 @@ columns = [
     "duration_sec"
 ]
 
-RAVDESS_DIR = Path("../../audio/datasets/ravdess")
-CREMAD_DIR = Path("../../audio/datasets/crema_d/CREMA-D/AudioWAV")
-IEMOCAP_DIR = Path("../../audio/datasets/iemocap/IEMOCAP_full_release/")
-LABEL_MAPPING_DIR = Path("../configs/label_mapping.yaml")
+# Absolute Directory Path, picked from project root
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+# Paths for Each Datasets
+RAVDESS_DIR = PROJECT_ROOT / "audio" / "datasets" / "ravdess"
+CREMAD_DIR = PROJECT_ROOT / "audio" / "datasets" / "crema_d" / "CREMA-D" / "AudioWAV"
+IEMOCAP_DIR = PROJECT_ROOT / "audio" / "datasets" / "iemocap" / "IEMOCAP_full_release"
+LABEL_MAPPING_DIR = PROJECT_ROOT / "common" / "configs" / "label_mapping.yaml"
 
 def parse_ravdess(root_dir, _config):
+    """
+    Parse the RAVDESS dataset folder and rows for manifest files
+
+    Args:
+        root_dir (PATH) : Absolute path to the dataset
+        _config (dict) : label mapping (native and canocical)
+
+    returns:
+        rows (list) : rows entires for ravdess dataset with relevant info
+    """
     rows = []
     skipped = []
     dataset = "ravdess"
@@ -35,7 +49,7 @@ def parse_ravdess(root_dir, _config):
                 continue
 
             parts = filename.replace(".wav", "").split("-")
-            filepath = os.path.join(root, filename)
+            filepath = str((Path(root) / filename).resolve())
 
             try:
                 native_label = _config[f"{dataset}_native"][parts[2]]
@@ -71,6 +85,16 @@ def parse_ravdess(root_dir, _config):
     return rows
 
 def parse_cremad(root_dir, _config):
+    """
+    Parse the crema_d dataset folder and rows for manifest files
+
+    Args:
+        root_dir (PATH) : Absolute path to the dataset
+        _config (dict) : label mapping (native and canocical)
+
+    returns:
+        rows (list) : rows entires for crema_d dataset with relevant info
+    """
     rows = []
     skipped = []
     dataset = 'crema_d'
@@ -81,7 +105,7 @@ def parse_cremad(root_dir, _config):
                 continue
 
             parts = filename.replace(".wav", "").split("_")
-            filepath = os.path.join(root, filename)
+            filepath = str((Path(root) / filename).resolve())
 
             try:
                 speaker_id = int(parts[0])
@@ -118,13 +142,23 @@ def parse_cremad(root_dir, _config):
 
 
 def parse_iemocap(root_dir, _config):
+    """
+    Parse the IEMOCAP dataset folder and rows for manifest files
+
+    Args:
+        root_dir (PATH) : Absolute path to the dataset
+        _config (dict) : label mapping (native and canocical)
+
+    returns:
+        rows (list) : rows entires for IEMOCAP dataset with relevant info
+    """
     rows = []
     skipped = []
     dataset = "iemocap"
 
     for i in range(1 , 6):
-
-        eval_dir = root_dir / f"Session{i}" / "dialog" / "EmoEvaluation"  # one Session at a time, or loop Sessions outside
+        # Emotion annotation files for the current session
+        eval_dir = root_dir / f"Session{i}" / "dialog" / "EmoEvaluation"  
 
         for txt_file in eval_dir.glob("*.txt"):
             dialog_id = txt_file.stem  # e.g. "Ses02F_impro01"
@@ -156,7 +190,7 @@ def parse_iemocap(root_dir, _config):
                     continue
             
                 rows.append({
-                    "filepath": str(wav_path),
+                    "filepath": str(wav_path.resolve()),
                     "dataset": dataset,
                     "speaker_id": speaker_id,
                     "actor_gender": "female" if speaker_gender == "F" else "male",
@@ -177,7 +211,15 @@ def parse_iemocap(root_dir, _config):
 
 def parse_emo_evaluation_file(txt_path):
     """
-        Parse one EmoEvaluation .txt file, return dict: utterance_id -> emotion_code
+    Parse an IEMOCAP EmoEvaluation file.
+
+    Args:
+        txt_path (Path):
+            Path to the annotation file.
+
+    Returns:
+        dict:
+            Mapping of utterance_id -> emotion_code.
     """
     utt_to_label = {}
     pattern = re.compile(r"^\[.*?\]\s+(\S+)\s+(\w+)\s+\[")
@@ -190,12 +232,30 @@ def parse_emo_evaluation_file(txt_path):
     return utt_to_label
 
 
-def get_duration(filepath):
+def get_duration(filepath): 
+    """
+    Compute the duration of an audio file.
+
+    Args:
+        filepath (str | Path):
+            Path to the audio file.
+
+    Returns:
+        float: Duration of the audio in seconds.
+    """
     info = sf.info(filepath)
     return info.frames / info.samplerate
 
 
 def main(mapping_path, data1, data2, data3):
+    """
+    Generate a unified manifest CSV from the supported SER datasets.
+
+    Loads label mappings, parses RAVDESS, CREMA-D, and IEMOCAP,
+    then writes all metadata into a single manifest file for
+    downstream preprocessing and training.
+    """
+    
     with open(mapping_path, "r") as f:
         _config = yaml.safe_load(f)
 
