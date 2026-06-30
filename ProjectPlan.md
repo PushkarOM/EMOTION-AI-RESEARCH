@@ -83,12 +83,6 @@ It aims to provide them with a **human-like emotional perception and memory syst
 
 ### (Audio / SER)
 
-Here's the Audio/SER status section updated with the acoustic branch work and both eval rounds:
-
----
-
-### (Audio / SER)
-
 #### Completed
 
 **Taxonomy**
