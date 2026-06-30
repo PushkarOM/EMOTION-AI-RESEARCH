@@ -83,6 +83,12 @@ It aims to provide them with a **human-like emotional perception and memory syst
 
 ### (Audio / SER)
 
+Here's the Audio/SER status section updated with the acoustic branch work and both eval rounds:
+
+---
+
+### (Audio / SER)
+
 #### Completed
 
 **Taxonomy**
@@ -108,9 +114,25 @@ It aims to provide them with a **human-like emotional perception and memory syst
   - `disgust` and `fear` near-absent in IEMOCAP (carried by RAVDESS/CREMA-D in the combined set)
   - `surprise` is RAVDESS-only (not present in CREMA-D or IEMOCAP)
   - `frustration` is IEMOCAP-only, and is IEMOCAP's largest class
-  - Mitigation planned: class-weighted loss at training time (not split-level rebalancing, to preserve speaker-disjointness)
+  - Mitigation: class-weighted `CrossEntropyLoss` at training time (`sklearn.compute_class_weight`, `balanced`), not split-level rebalancing, to preserve speaker-disjointness
 
-### Next
-- Wav2Vec2 dataloader + feature extraction pipeline (acoustic branch)
+**Acoustic branch v1 (Wav2Vec2)** — *new*
+- `facebook/wav2vec2-base`, feature encoder frozen, fine-tuned end-to-end via `Wav2Vec2ForSequenceClassification` (8-way classification head)
+- Trained on Kaggle (dual-GPU via `DataParallel`), 10 epochs, batch size 16 with gradient accumulation 2 (effective batch 32), AdamW (lr 2e-5, weight decay 0.01), linear warmup/decay schedule (10% warmup), mixed precision (fp16 autocast + grad scaler), fixed seed = 42
+- Checkpoint selection: best val weighted F1, hit at epoch 6 (val F1 0.5921); train F1 continued climbing to 0.90 by epoch 10 while val plateaued/declined slightly — flags some overfitting in later epochs, mitigated by checkpointing on val rather than final epoch
+- **Val set** (n=3,010): weighted F1 0.592, macro F1 0.595, accuracy 0.592
+- **Test set** (n=2,754): weighted F1 0.635, macro F1 0.643, accuracy 0.635 — outperforms val, consistent with val being the checkpoint-selection set (mildly optimistic by construction) rather than evidence of unusually strong generalization
+- Per-class pattern stable across both splits: `frustration` is consistently the hardest class (F1 ≈ 0.49 on both val and test), confused primarily with `neutral` (not `angry` as might be expected) — 28% of true frustration test samples predicted as neutral vs. 3.6% as angry. Likely reflects IEMOCAP's frustration annotations skewing toward restrained/conversational rather than dramatic, acoustically closer to flat prosody than to anger
+- Other classes shifted differently between val→test (angry: precision up, recall down; sad: recall up, precision down) — read as different error profiles rather than a clean improvement, and not yet root-caused; pending the speaker-disjointness/per-corpus sanity checks noted below
+- SOTA comparison attempted and found **not directly comparable**: published SER benchmarks use single-corpus protocols (e.g., IEMOCAP 5/10-fold, RAVDESS LOSO) on different label sets, while this result is an 8-class taxonomy across 3 merged corpora on a single fixed speaker-disjoint split. Literature suggests specialized architectures (multitask, cross-corpus regularization) only buy ~8% average improvement over standard fine-tuning, so this baseline is considered a credible v1, not an obviously suboptimal one
+- Domain-confound check on frustration misclassifications run and found **inconclusive/uninformative** by construction (frustration only exists in IEMOCAP, so its confusions are trivially IEMOCAP-only); a real test would need embedding-space analysis (t-SNE over pooled Wav2Vec2 representations, colored by dataset+label) comparing IEMOCAP neutral/happy to RAVDESS/CREMA-D neutral/happy — deferred to the paper's analysis section, not done yet
+- **Decision: locked as v1.** Checkpoint saved (`checkpoints/best_model.pt`); further acoustic-only tuning deferred until the full multimodal pipeline is working end-to-end
+
+#### Next
+- **Sanity checks on the val/test gap** (cheap, should precede further analysis): confirm true speaker-disjointness across splits (no accidental leakage), and check whether per-corpus class composition (RAVDESS/CREMA-D/IEMOCAP mix) differs between val and test for the classes that moved most (`sad`, `angry`)
+- **Semantic branch** (in progress): Whisper transcription pipeline → existing `PushkarOM/roberta-head-goemotion` model → map GoEmotions-28 output to the canonical 8-class taxonomy via the existing label mapping
+- **Internal audio fusion**: confidence-weighted combination of acoustic + semantic branch outputs (`/emotion/audio/analyze` endpoint, schema with `source/emotion/confidence/components` already drafted)
+- Embedding-space domain-confound analysis (t-SNE, deferred from above) — planned for the paper's analysis section, not blocking v1
 - LOSO (Leave-One-Speaker-Out) evaluation on RAVDESS planned as a separate ablation, alongside the primary fixed-split methodology, to allow direct comparison with published RAVDESS-only baselines
+- Face branch (deferred, separate from audio work)
   
