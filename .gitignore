@@ -11,3 +11,5 @@ audio/datasets/*/
 !audio/datasets/*/.gitkeep
 wandb/
 .env
+hf_export/
+checkpoints/

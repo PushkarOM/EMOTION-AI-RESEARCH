@@ -400,7 +400,7 @@ def main():
                 },
                 CHECKPOINT_DIR / "best_model.pt",
             )
-            print(f"  ✓ checkpoint saved (val F1: {val_f1:.4f})")
+            print(f"checkpoint saved (val F1: {val_f1:.4f})")
 
     print(f"\nTraining complete. Best val F1: {best_val_f1:.4f}")
 
