@@ -13,3 +13,6 @@ wandb/
 .env
 hf_export/
 checkpoints/
+*.json
+*.txt
+test_transcripts.csv
